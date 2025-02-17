@@ -1,0 +1,35 @@
+### Java ###
+*.class
+
+### Package Files ###
+*.war
+*.ear
+
+##############################
+## Gradle
+##############################
+bin/
+build/
+gradle/
+.gradle
+gradlew
+gradlew.bat
+
+
+##############################
+## Eclipse
+##############################
+.settings/
+bin/
+tmp/
+.metadata
+.classpath
+.project
+build.xml
+
+##############################
+## InteliJ
+##############################
+.idea/
+**/main.iml
+out/

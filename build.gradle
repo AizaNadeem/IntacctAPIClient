@@ -1,0 +1,18 @@
+plugins {
+    id 'application'
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+    implementation 'org.json:json:20210307'
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+}
+
+application {
+    mainClass = 'com.intacct.xtera.App'
+}
