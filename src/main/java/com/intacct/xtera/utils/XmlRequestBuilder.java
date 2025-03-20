@@ -1,10 +1,15 @@
 package com.intacct.xtera.utils;
 
+import java.util.Arrays;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import com.intacct.xtera.config.ApiConstants;
 
 public class XmlRequestBuilder {
 
     public static String getSessionRequest() {
+    	//String controlId = UUID.randomUUID().toString();
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<request>"
                 + "<control>"
@@ -33,12 +38,13 @@ public class XmlRequestBuilder {
     }
     
     public static String getItemRequest(String sessionId, String itemId) {
+    	String controlId = UUID.randomUUID().toString();
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<request>"
                 + "<control>"
                 + "<senderid>" + ApiConstants.SENDER_ID + "</senderid>"
                 + "<password>" + ApiConstants.SENDER_PASSWORD + "</password>"
-                + "<controlid>getItemRequest</controlid>"
+                + "<controlid>" + controlId + "</controlid>"
                 + "<uniqueid>false</uniqueid>"
                 + "<dtdversion>3.0</dtdversion>"
                 + "<includewhitespace>false</includewhitespace>"
@@ -48,7 +54,7 @@ public class XmlRequestBuilder {
                 + "<sessionid>" + sessionId + "</sessionid>"
                 + "</authentication>"
                 + "<content>"
-                + "<function controlid=\"getItem\">"
+                + "<function controlid=\"" + controlId + "\">"
                 + "<readByName>"
                 + "<object>ITEM</object>"
                 + "<keys>" + itemId + "</keys>"
@@ -60,23 +66,41 @@ public class XmlRequestBuilder {
                 + "</request>";
     }
 
-    public static String createItemRequest(String sessionId, String itemId, String name, String itemType) {
+    public static String createItemRequest(String sessionId, String itemId, String name) {
+    	String controlId = UUID.randomUUID().toString();
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<request>"
                 + "<control>"
                 + "<senderid>" + ApiConstants.SENDER_ID + "</senderid>"
                 + "<password>" + ApiConstants.SENDER_PASSWORD + "</password>"
-                + "<controlid>createItemRequest</controlid>"
+                + "<controlid>" + controlId + "</controlid>"
+                + "<uniqueid>false</uniqueid>"
+                + "<dtdversion>3.0</dtdversion>"
+                + "<includewhitespace>false</includewhitespace>"
                 + "</control>"
                 + "<operation>"
-                + "<authentication><sessionid>" + sessionId + "</sessionid></authentication>"
+                + "<authentication>"
+                + "<sessionid>" + sessionId + "</sessionid>"
+                + "</authentication>"
                 + "<content>"
-                + "<function controlid=\"createItem\">"
+                + "<function controlid=\"" + controlId + "\">"
                 + "<create>"
                 + "<ITEM>"
                 + "<ITEMID>" + itemId + "</ITEMID>"
                 + "<NAME>" + name + "</NAME>"
-                + "<ITEMTYPE>" + itemType + "</ITEMTYPE>"
+                + "<ITEMTYPE>Inventory</ITEMTYPE>"
+                + "<TAXABLE>true</TAXABLE>"
+                + "<TAXGROUP>"
+                + "<NAME>Goods Standard Rate</NAME>"
+                + "<TAXSOLUTION>"
+                + "<SOLUTIONID>United Kingdom - VAT</SOLUTIONID>"
+                + "</TAXSOLUTION>"
+                + "<TAXSOLUTIONKEY>4</TAXSOLUTIONKEY>"
+                + "</TAXGROUP>"
+                + "<ENABLE_BINS>true</ENABLE_BINS>"
+                + "<INV_PRECISION>6</INV_PRECISION>"
+                + "<PO_PRECISION>6</PO_PRECISION>"
+                + "<SO_PRECISION>6</SO_PRECISION>"
                 + "</ITEM>"
                 + "</create>"
                 + "</function>"
@@ -84,10 +108,76 @@ public class XmlRequestBuilder {
                 + "</operation>"
                 + "</request>";
     }
+    
+    public static String createItemCrossreference(String sessionId, String itemId, String vendorId, String itemAliasId, String itemAliasDesc) {
+        String controlId = UUID.randomUUID().toString();
+        long timestamp = System.currentTimeMillis();
+        
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<request>"
+                + "<control>"
+                + "<senderid>" + ApiConstants.SENDER_ID + "</senderid>"
+                + "<password>" + ApiConstants.SENDER_PASSWORD + "</password>"
+                + "<controlid>" + timestamp + "</controlid>"
+                + "<uniqueid>false</uniqueid>"
+                + "<dtdversion>3.0</dtdversion>"
+                + "<includewhitespace>false</includewhitespace>"
+                + "</control>"
+                + "<operation>"
+                + "<authentication>"
+                + "<sessionid>" + sessionId + "</sessionid>"
+                + "</authentication>"
+                + "<content>"
+                + "<function controlid=\"" + controlId + "\">"
+                + "<create>"
+                + "<ITEMCROSSREF>"
+                + "<REFTYPE>Vendor</REFTYPE>"
+                + "<ITEMID>" + itemId + "</ITEMID>"
+                + "<VENDORID>" + vendorId + "</VENDORID>"
+                + "<ITEMALIASID>" + itemAliasId + "</ITEMALIASID>"
+                + "<ITEMALIASDESC>" + itemAliasDesc + "</ITEMALIASDESC>"
+                + "</ITEMCROSSREF>"
+                + "</create>"
+                + "</function>"
+                + "</content>"
+                + "</operation>"
+                + "</request>";
+    }
+    
+    public static String updateItemCrossreference(String sessionId, String recordNo, String itemAliasDesc) {
+        String controlId = UUID.randomUUID().toString(); // Generate unique control ID
+        long timestamp = System.currentTimeMillis(); // Get current timestamp
+        
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<request>"
+                + "<control>"
+                + "<senderid>" + ApiConstants.SENDER_ID + "</senderid>"
+                + "<password>" + ApiConstants.SENDER_PASSWORD + "</password>"
+                + "<controlid>" + timestamp + "</controlid>"
+                + "<uniqueid>false</uniqueid>"
+                + "<dtdversion>3.0</dtdversion>"
+                + "<includewhitespace>false</includewhitespace>"
+                + "</control>"
+                + "<operation>"
+                + "<authentication>"
+                + "<sessionid>" + sessionId + "</sessionid>"
+                + "</authentication>"
+                + "<content>"
+                + "<function controlid=\"" + controlId + "\">"
+                + "<update>"
+                + "<ITEMCROSSREF>"
+                + "<RECORDNO>" + recordNo + "</RECORDNO>"
+                + "<ITEMALIASDESC>" + itemAliasDesc + "</ITEMALIASDESC>"
+                + "</ITEMCROSSREF>"
+                + "</update>"
+                + "</function>"
+                + "</content>"
+                + "</operation>"
+                + "</request>";
+    }
 
     public static String updateItemRequest(String sessionId, String recordNo, String name) {
-        String controlId = "updateItemRequest_" + System.currentTimeMillis();
-        
+        String controlId = UUID.randomUUID().toString();
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<request>"
                 + "<control>"
@@ -110,6 +200,39 @@ public class XmlRequestBuilder {
                 + "<NAME>" + name + "</NAME>"
                 + "</ITEM>"
                 + "</update>"
+                + "</function>"
+                + "</content>"
+                + "</operation>"
+                + "</request>";
+    }
+    
+    public static String getVendorRequest(String sessionId, String vendorNames) {
+        String controlId = UUID.randomUUID().toString();
+        String query = Arrays.stream(vendorNames.split(","))
+                .map(name -> "NAME LIKE '%" + name.trim() + "%'")
+                .collect(Collectors.joining(" OR "));
+
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<request>"
+                + "<control>"
+                + "<senderid>" + ApiConstants.SENDER_ID + "</senderid>"
+                + "<password>" + ApiConstants.SENDER_PASSWORD + "</password>"
+                + "<controlid>" + System.currentTimeMillis() + "</controlid>"
+                + "<uniqueid>false</uniqueid>"
+                + "<dtdversion>3.0</dtdversion>"
+                + "<includewhitespace>false</includewhitespace>"
+                + "</control>"
+                + "<operation>"
+                + "<authentication>"
+                + "<sessionid>" + sessionId + "</sessionid>"
+                + "</authentication>"
+                + "<content>"
+                + "<function controlid=\"" + controlId + "\">"
+                + "<readByQuery>"
+                + "<object>VENDOR</object>"
+                + "<query>" + query + "</query>"
+                + "<fields>*</fields>"
+                + "</readByQuery>"
                 + "</function>"
                 + "</content>"
                 + "</operation>"
