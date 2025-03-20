@@ -8,7 +8,7 @@ import com.intacct.xtera.config.ApiConstants;
 
 public class XmlRequestBuilder {
 
-    public static String getSessionRequest() {
+    public String getSessionRequest() {
     	//String controlId = UUID.randomUUID().toString();
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<request>"
@@ -37,7 +37,7 @@ public class XmlRequestBuilder {
                 + "</request>";
     }
     
-    public static String getItemRequest(String sessionId, String itemId) {
+    public String getItemRequest(String sessionId, String itemId) {
     	String controlId = UUID.randomUUID().toString();
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<request>"
@@ -66,7 +66,7 @@ public class XmlRequestBuilder {
                 + "</request>";
     }
 
-    public static String createItemRequest(String sessionId, String itemId, String name) {
+    public String createItemRequest(String sessionId, String itemId, String name) {
     	String controlId = UUID.randomUUID().toString();
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<request>"
@@ -109,7 +109,7 @@ public class XmlRequestBuilder {
                 + "</request>";
     }
     
-    public static String createItemCrossreference(String sessionId, String itemId, String vendorId, String itemAliasId, String itemAliasDesc) {
+    public String createItemCrossreference(String sessionId, String itemId, String vendorId, String itemAliasId, String itemAliasDesc) {
         String controlId = UUID.randomUUID().toString();
         long timestamp = System.currentTimeMillis();
         
@@ -144,7 +144,7 @@ public class XmlRequestBuilder {
                 + "</request>";
     }
     
-    public static String updateItemCrossreference(String sessionId, String recordNo, String itemAliasDesc) {
+    public String updateItemCrossreference(String sessionId, String recordNo, String itemAliasDesc) {
         String controlId = UUID.randomUUID().toString(); // Generate unique control ID
         long timestamp = System.currentTimeMillis(); // Get current timestamp
         
@@ -176,7 +176,7 @@ public class XmlRequestBuilder {
                 + "</request>";
     }
 
-    public static String updateItemRequest(String sessionId, String recordNo, String name) {
+    public String updateItemRequest(String sessionId, String recordNo, String name) {
         String controlId = UUID.randomUUID().toString();
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<request>"
@@ -206,7 +206,7 @@ public class XmlRequestBuilder {
                 + "</request>";
     }
     
-    public static String getVendorRequest(String sessionId, String vendorNames) {
+    public String getVendorRequest(String sessionId, String vendorNames) {
         String controlId = UUID.randomUUID().toString();
         String query = Arrays.stream(vendorNames.split(","))
                 .map(name -> "NAME LIKE '%" + name.trim() + "%'")

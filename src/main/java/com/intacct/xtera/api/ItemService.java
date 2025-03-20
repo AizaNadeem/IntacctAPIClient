@@ -26,32 +26,38 @@ import com.intacct.xtera.utils.XmlRequestBuilder;
 public class ItemService {
 
     public static String getItem(String sessionId, String itemId) throws IOException {
-        String xmlRequest = XmlRequestBuilder.getItemRequest(sessionId, itemId);
+    	XmlRequestBuilder xmlBuilder = new XmlRequestBuilder();
+    	String xmlRequest = xmlBuilder.getItemRequest(sessionId, itemId);
         return IntacctApiClient.sendPostRequest(xmlRequest);
     }
     
     public static String getVendor(String sessionId, String vendorId) throws IOException {
-        String xmlRequest = XmlRequestBuilder.getVendorRequest(sessionId, vendorId);
+    	XmlRequestBuilder xmlBuilder = new XmlRequestBuilder();
+    	String xmlRequest = xmlBuilder.getVendorRequest(sessionId, vendorId);
         return IntacctApiClient.sendPostRequest(xmlRequest);
     }
 
     public static String createItem(String sessionId, String itemId, String name) throws IOException {
-        String xmlRequest = XmlRequestBuilder.createItemRequest(sessionId, itemId, name);
+    	XmlRequestBuilder xmlBuilder = new XmlRequestBuilder();
+    	String xmlRequest = xmlBuilder.createItemRequest(sessionId, itemId, name);
         return IntacctApiClient.sendPostRequest(xmlRequest);
     }
 
     public static String updateItem(String sessionId, String recordNo, String name) throws IOException {
-        String xmlRequest = XmlRequestBuilder.updateItemRequest(sessionId, recordNo, name);
+    	XmlRequestBuilder xmlBuilder = new XmlRequestBuilder();
+    	String xmlRequest = xmlBuilder.updateItemRequest(sessionId, recordNo, name);
         return IntacctApiClient.sendPostRequest(xmlRequest);
     }
     
     public static String createItemCrossReference(String sessionId, String itemId, String vendorId, String itemAliasId, String itemAliasDesc) throws IOException {
-        String xmlRequest = XmlRequestBuilder.createItemCrossreference(sessionId, itemId, vendorId, itemAliasId, itemAliasDesc);
+    	XmlRequestBuilder xmlBuilder = new XmlRequestBuilder();
+    	String xmlRequest = xmlBuilder.createItemCrossreference(sessionId, itemId, vendorId, itemAliasId, itemAliasDesc);
         return IntacctApiClient.sendPostRequest(xmlRequest);
     }
 
     public static String updateItemCrossReference(String sessionId, String recordNo, String itemAliasDesc) throws IOException {
-        String xmlRequest = XmlRequestBuilder.updateItemCrossreference(sessionId, recordNo, itemAliasDesc);
+    	XmlRequestBuilder xmlBuilder = new XmlRequestBuilder();
+    	String xmlRequest = xmlBuilder.updateItemCrossreference(sessionId, recordNo, itemAliasDesc);
         return IntacctApiClient.sendPostRequest(xmlRequest);
     }
     
@@ -76,15 +82,12 @@ public class ItemService {
     public static Map<String, String> parseVendorResponse(String vendorNames, String xmlResponse) {
         Map<String, String> resultMap = new HashMap<>();
         Set<String> requestedVendors = new HashSet<>(Arrays.asList(vendorNames.split(",")));
-        Set<String> foundVendors = new HashSet<>();
-
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             InputStream inputStream = new ByteArrayInputStream(xmlResponse.getBytes("UTF-8"));
             Document document = builder.parse(inputStream);
             document.getDocumentElement().normalize();
-
             NodeList statusList = document.getElementsByTagName("status");
             if (statusList.getLength() > 1) {
                 String status = statusList.item(1).getTextContent();
@@ -95,7 +98,6 @@ public class ItemService {
                     return resultMap;
                 }
             }
-
             NodeList vendorList = document.getElementsByTagName("vendor");
             for (int i = 0; i < vendorList.getLength(); i++) {
                 Element vendor = (Element) vendorList.item(i);
@@ -105,7 +107,6 @@ public class ItemService {
                     resultMap.put(vendorName, vendorId);
                 }
             }
-
             for (String vendor : requestedVendors) {
                 resultMap.putIfAbsent(vendor, "");
             }
@@ -115,7 +116,6 @@ public class ItemService {
                 resultMap.put(vendor, "");
             }
         }
-
         return resultMap;
     }
 
@@ -130,18 +130,15 @@ public class ItemService {
     public static Map<String, String> getVendorRecordMap(String xmlResponse, List<ItemCrossReference> vendorItemList) {
         Map<String, String> resultMap = new HashMap<>();
         for (ItemCrossReference item : vendorItemList) {
-            resultMap.put(item.getVendor(), ""); // Default empty record ID
+            resultMap.put(item.getVendor(), "");
         }
-
         try {
-            // Parse XML
         	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             InputStream inputStream = new ByteArrayInputStream(xmlResponse.getBytes("UTF-8"));
             Document document = builder.parse(inputStream);
             document.getDocumentElement().normalize();
 
-            // Get all ITEMCROSSREFERENCE nodes
             NodeList nodeList = document.getElementsByTagName("itemcrossref");
 
             for (int i = 0; i < nodeList.getLength(); i++) {
@@ -149,16 +146,14 @@ public class ItemService {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element element = (Element) node;
 
-                    // Extract vendor name, item alias ID, and record ID
                     String vendorName = element.getElementsByTagName("VENDORNAME").item(0).getTextContent();
                     String itemAliasId = element.getElementsByTagName("ITEMALIASID").item(0).getTextContent();
                     String recordId = element.getElementsByTagName("RECORDNO").item(0).getTextContent();
 
-                    // Check if any item in vendorItemList matches vendorName and itemAliasId
                     for (ItemCrossReference item : vendorItemList) {
                         if (item.getVendor().equals(vendorName) && item.getId().equals(itemAliasId)) {
-                            resultMap.put(item.getVendor(), recordId); // Update map with record ID
-                            break; // Stop checking once we find a match
+                            resultMap.put(item.getVendor(), recordId);
+                            break;
                         }
                     }
                 }
@@ -166,7 +161,6 @@ public class ItemService {
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
-
         return resultMap;
     }
 }

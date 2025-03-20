@@ -18,7 +18,6 @@ public class IntacctApiClient {
             HttpPost post = new HttpPost(ApiConstants.API_URL);
             post.setHeader("Content-Type", "application/xml");
             post.setEntity(new StringEntity(xmlRequest));
-
             try (CloseableHttpResponse response = client.execute(post)) {
                 return EntityUtils.toString(response.getEntity());
             }
