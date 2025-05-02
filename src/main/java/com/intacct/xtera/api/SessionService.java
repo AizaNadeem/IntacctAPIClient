@@ -1,11 +1,10 @@
 package com.intacct.xtera.api;
 
 import com.intacct.xtera.utils.XmlRequestBuilder;
-import java.io.IOException;
 
 public class SessionService {
 
-    public static String getSessionId() throws IOException {
+    public static String getSessionId() throws Exception {
     	XmlRequestBuilder xmlBuilder = new XmlRequestBuilder();
         String xmlRequest = xmlBuilder.getSessionRequest();
         String response = IntacctApiClient.sendPostRequest(xmlRequest);

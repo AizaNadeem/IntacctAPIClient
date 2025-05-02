@@ -1,15 +1,12 @@
 package com.intacct.xtera.utils;
 
-import java.util.Arrays;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.intacct.xtera.config.ApiConstants;
 
 public class XmlRequestBuilder {
 
     public String getSessionRequest() {
-    	//String controlId = UUID.randomUUID().toString();
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<request>"
                 + "<control>"
@@ -87,7 +84,7 @@ public class XmlRequestBuilder {
                 + "<create>"
                 + "<ITEM>"
                 + "<ITEMID>" + itemId + "</ITEMID>"
-                + "<NAME>" + name + "</NAME>"
+                + "<NAME>" + XMLUtils.escapeXML(name) + "</NAME>"
                 + "<ITEMTYPE>Inventory</ITEMTYPE>"
                 + "<TAXABLE>true</TAXABLE>"
                 + "<TAXGROUP>"
@@ -134,8 +131,8 @@ public class XmlRequestBuilder {
                 + "<REFTYPE>Vendor</REFTYPE>"
                 + "<ITEMID>" + itemId + "</ITEMID>"
                 + "<VENDORID>" + vendorId + "</VENDORID>"
-                + "<ITEMALIASID>" + itemAliasId + "</ITEMALIASID>"
-                + "<ITEMALIASDESC>" + itemAliasDesc + "</ITEMALIASDESC>"
+                + "<ITEMALIASID>" + XMLUtils.escapeXML(itemAliasId) + "</ITEMALIASID>"
+                + "<ITEMALIASDESC>" + XMLUtils.escapeXML(itemAliasDesc) + "</ITEMALIASDESC>"
                 + "</ITEMCROSSREF>"
                 + "</create>"
                 + "</function>"
@@ -167,7 +164,7 @@ public class XmlRequestBuilder {
                 + "<update>"
                 + "<ITEMCROSSREF>"
                 + "<RECORDNO>" + recordNo + "</RECORDNO>"
-                + "<ITEMALIASDESC>" + itemAliasDesc + "</ITEMALIASDESC>"
+                + "<ITEMALIASDESC>" + XMLUtils.escapeXML(itemAliasDesc) + "</ITEMALIASDESC>"
                 + "</ITEMCROSSREF>"
                 + "</update>"
                 + "</function>"
@@ -197,7 +194,7 @@ public class XmlRequestBuilder {
                 + "<update>"
                 + "<ITEM>"
                 + "<RECORDNO>" + recordNo + "</RECORDNO>"
-                + "<NAME>" + name + "</NAME>"
+                + "<NAME>" + XMLUtils.escapeXML(name) + "</NAME>"
                 + "</ITEM>"
                 + "</update>"
                 + "</function>"
@@ -206,11 +203,8 @@ public class XmlRequestBuilder {
                 + "</request>";
     }
     
-    public String getVendorRequest(String sessionId, String vendorNames) {
+    public String getVendorRequest(String sessionId, String vendorIDs) {
         String controlId = UUID.randomUUID().toString();
-        String query = Arrays.stream(vendorNames.split(","))
-                .map(name -> "NAME LIKE '%" + name.trim() + "%'")
-                .collect(Collectors.joining(" OR "));
 
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<request>"
@@ -228,15 +222,14 @@ public class XmlRequestBuilder {
                 + "</authentication>"
                 + "<content>"
                 + "<function controlid=\"" + controlId + "\">"
-                + "<readByQuery>"
+                + "<readByName>"
                 + "<object>VENDOR</object>"
-                + "<query>" + query + "</query>"
+                + "<keys>" + vendorIDs + "</keys>"
                 + "<fields>*</fields>"
-                + "</readByQuery>"
+                + "</readByName>"
                 + "</function>"
                 + "</content>"
                 + "</operation>"
                 + "</request>";
-    }
-
+    }    
 }

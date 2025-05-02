@@ -6,8 +6,11 @@ import java.util.List;
 
 import com.agile.api.APIException;
 import com.agile.api.ChangeConstants;
+import com.agile.api.IChange;
 import com.agile.api.IDataObject;
 import com.agile.api.IItem;
+import com.agile.api.IAgileClass;
+import com.agile.api.IManufacturer;
 import com.agile.api.IRow;
 import com.agile.api.ITable;
 import com.agile.api.ItemConstants;
@@ -23,11 +26,19 @@ public class AppHandler {
 		Iterator iter = affItems.iterator();
 		while (iter.hasNext()){
 			IRow row = (IRow) iter.next();
-			IDataObject docObj = row.getReferent();
-			System.out.println("Item: "+ docObj.getName());
-			if(docObj.getAgileClass() instanceof IItem) {
-				itemList.add(docObj);
+			String itemName = row.getCell(ChangeConstants.ATT_AFFECTED_ITEMS_ITEM_NUMBER).toString();
+			IDataObject item = (IDataObject) change.getSession().getObject(IItem.OBJECT_TYPE, itemName);
+			System.out.println("Item: "+ item.getName());
+			
+			IAgileClass agileClass = item.getAgileClass();
+			IAgileClass parentClass = agileClass.getSuperClass();
+
+			if (parentClass != null && parentClass.getId().equals(ItemConstants.CLASS_PARTS_CLASS)) {
+				itemList.add(item);
 			}
+//			if(ItemConstants.CLASS_PARTS_CLASS.equals(item.getAgileClass().getId())) {
+//				itemList.add(item);
+//			}
 		}
 		System.out.println("Exiting getDocumentList..");
 		return itemList;
@@ -42,15 +53,30 @@ public class AppHandler {
 			Iterator iter = manufacturerTable.iterator();
 			List<ItemCrossReference> manufacturers = new ArrayList<>();
 			while (iter.hasNext()){
-				IRow row = (IRow) iter.next();
-				String mfr = row.getCell(ItemConstants.ATT_MANUFACTURERS_MFR_NAME).toString();
+				IRow row = (IRow) iter.next();		
+				String mfrName = row.getCell(ItemConstants.ATT_MANUFACTURERS_MFR_NAME).toString();
+				IDataObject manufacturer = (IDataObject) item.getSession().getObject(IManufacturer.OBJECT_TYPE, mfrName);
+				Object vendorID = manufacturer.getCell(1301).getValue();
+				String mfrID = "";
+				if(vendorID != null) {
+					mfrID = vendorID.toString();
+				}
 				String mfrPart = row.getCell(ItemConstants.ATT_MANUFACTURERS_MFR_PART_NUMBER).toString();
 				String mfrDesc = row.getCell(ItemConstants.ATT_MANUFACTURERS_MFR_PART_DESCRIPTION).toString();
-				manufacturers.add(new ItemCrossReference(mfr, mfrPart, mfrDesc));
+				manufacturers.add(new ItemCrossReference(mfrID, mfrName, mfrPart, mfrDesc));
 			}
 			itemsData.add(new Item(number, desc, manufacturers));
 		}
 		System.out.println(itemsData.toString());
 		return itemsData;
+	}
+	
+	public void sendNotification(IChange change, String comment) throws APIException {
+		//List<IUser> notifyList = new ArrayList<>();
+		boolean urgent = true;
+		String template = "SageIntegrationNotitification";
+		//change.getSession().getCurrentUser();
+		//notifyList.add(change.getSession().getCurrentUser());
+		change.getSession().sendNotification(change, template, null, urgent, comment);
 	}
 }

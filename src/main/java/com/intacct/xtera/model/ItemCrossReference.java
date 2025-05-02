@@ -1,13 +1,15 @@
 package com.intacct.xtera.model;
 
 public class ItemCrossReference {
-	private String vendor;
+	private String vendorID;
+	private String vendorName;
 	private String id;
 	private String desc;
 	
-	public ItemCrossReference(String vendor, String id, String desc) {
+	public ItemCrossReference(String vendorID, String vendorName, String id, String desc) {
 		super();
-		this.vendor = vendor;
+		this.vendorID = vendorID;
+		this.vendorName = vendorName;
 		this.id = id;
 		this.desc = desc;
 	}
@@ -23,13 +25,16 @@ public class ItemCrossReference {
 	public void setDesc(String desc) {
 		this.desc = desc;
 	}
-
-	public String getVendor() {
-		return vendor;
+	public String getVendorID() {
+		return vendorID;
 	}
-
-	public void setVendor(String vendor) {
-		this.vendor = vendor;
+	public void setVendorID(String vendorID) {
+		this.vendorID = vendorID;
 	}
-	
+	public String getVendorName() {
+		return vendorName;
+	}
+	public void setVendorName(String vendorName) {
+		this.vendorName = vendorName;
+	}
 }
