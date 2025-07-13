@@ -39,15 +39,15 @@ public class ItemService {
 		return IntacctApiClient.sendPostRequest(xmlRequest);
 	}
 
-	public static String createItem(String sessionId, String itemId, String name) throws Exception {
+	public static String createItem(String sessionId, String itemId, String name, String productLines) throws Exception {
 		XmlRequestBuilder xmlBuilder = new XmlRequestBuilder();
-		String xmlRequest = xmlBuilder.createItemRequest(sessionId, itemId, name);
+		String xmlRequest = xmlBuilder.createItemRequest(sessionId, itemId, name, productLines);
 		return IntacctApiClient.sendPostRequest(xmlRequest);
 	}
 
-	public static String updateItem(String sessionId, String recordNo, String name) throws Exception {
+	public static String updateItem(String sessionId, String recordNo, String itemId, String name) throws Exception {
 		XmlRequestBuilder xmlBuilder = new XmlRequestBuilder();
-		String xmlRequest = xmlBuilder.updateItemRequest(sessionId, recordNo, name);
+		String xmlRequest = xmlBuilder.updateItemRequest(sessionId, recordNo, itemId, name);
 		return IntacctApiClient.sendPostRequest(xmlRequest);
 	}
 

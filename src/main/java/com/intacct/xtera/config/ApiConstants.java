@@ -7,4 +7,12 @@ public class ApiConstants {
     public static final String USER_ID = "Xavor";
     public static final String COMPANY_ID = "XTera-imp";
     public static final String USER_PASSWORD = "HacD92?6pva";
+    
+    public static final String GL_GROUP_1 = "Finished Goods";
+    public static final String GL_GROUP_2 = "Raw Material";
+    
+    public static final Integer VENDOR_BASE_ID = 1301;
+    public static final String GENERIC_VENDOR_ID = "DUM001";
+
+
 }

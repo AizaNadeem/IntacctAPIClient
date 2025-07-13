@@ -1,9 +1,42 @@
 package com.intacct.xtera.utils;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class XMLUtils {
+	
+	private static final Map<String, String> agileToSageMap = createMap();
+
+    private static Map<String, String> createMap() {
+        Map<String, String> map = new HashMap<>();
+        map.put("Nu-Wave CXR", "CXR XLS");
+        map.put("Nu-Wave NXT", "NXT");
+        map.put("Nu-Wave Optima", "Optima");
+        map.put("Common", "Cable and Accessories");
+        map.put("Nu-Wave ES", "Channel Cards");
+        map.put("Nu-Wave XLS", "Repeater");
+        map.put("Submerged- SUB", "Branching Unit");
+        return map;
+    }
+    
+    public static String getSageProductLine(String agileProductLine) {
+        if (agileProductLine == null || agileProductLine.trim().isEmpty()) {
+            return null;
+        }
+        String[] parts = agileProductLine.split(";");
+        for (String part : parts) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) {
+                return agileToSageMap.getOrDefault(trimmed, agileProductLine);
+            }
+        }
+        return agileProductLine;
+    }
+
     
     public static String escapeXML(String input) {
         if (input == null) {
@@ -29,6 +62,7 @@ public class XMLUtils {
         if (description == null || description.isEmpty()) {
             return "";
         }
+        description = StringEscapeUtils.unescapeHtml4(description);
         int idx = description.indexOf(" [");
         return idx != -1 ? description.substring(0, idx).trim() : description;
     }

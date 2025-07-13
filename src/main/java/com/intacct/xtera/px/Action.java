@@ -3,6 +3,7 @@ package com.intacct.xtera.px;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.agile.api.APIException;
 import com.agile.api.IAgileSession;
@@ -32,7 +33,7 @@ public class Action implements IEventAction {
 	        if (!itemList.isEmpty()) {
 	            List<Item> items = appHandler.getItemData(itemList);
 	            Map<String, String> failedItemMap = new HashMap<>();
-	            Map<String, List<String>> itemVendorMap = app.exportFromAgileToIntacct(items, failedItemMap);
+	            Map<String, Map<String, String>> itemVendorMap = app.exportFromAgileToIntacct(items, failedItemMap);
 	            String comment = buildIntegrationComment(change.getName(), itemVendorMap, failedItemMap);
 	            appHandler.sendNotification((IChange) change, comment);
 	            rs = new ActionResult(ActionResult.STRING, "Integration Completed");
@@ -53,33 +54,44 @@ public class Action implements IEventAction {
 	    return new EventActionResult(iEventInfo, rs);
 	}
 
-	private String buildIntegrationComment(String changeName, Map<String, List<String>> itemVendorMap, Map<String, String> failedItemMap) {
-	    StringBuilder commentBuilder = new StringBuilder();
-	    commentBuilder.append("Hi,\n\n");
-	    commentBuilder.append("The integration from Agile PLM to Sage has been successfully completed for ")
-	                  .append(changeName).append(".\n");
-
-	    if (!failedItemMap.isEmpty()) {
-	        commentBuilder.append("\nHowever, the following item(s) could not be created in Sage due to the respective reason(s):\n\n");
-	        for (Map.Entry<String, String> entry : failedItemMap.entrySet()) {
-	            commentBuilder.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
-	        }
-	        commentBuilder.append("\n");
-	    }
-	    boolean hasMissingVendors = itemVendorMap.values().stream().anyMatch(list -> !list.isEmpty());
-	    if (hasMissingVendors) {
-	        commentBuilder.append("\nThe following vendor(s) do not exist in Sage:\n\n");
-	        for (Map.Entry<String, List<String>> entry : itemVendorMap.entrySet()) {
-	            if (!entry.getValue().isEmpty()) {
-	                commentBuilder.append("- ").append(entry.getKey()).append(":\n");
-	                for (String vendor : entry.getValue()) {
-	                    commentBuilder.append("     - ").append(vendor).append("\n");
-	                }
-	                commentBuilder.append("\n");
-	            }
-	        }
-	        commentBuilder.append("Please review and take the necessary action.\n");
-	    }
-	    return commentBuilder.toString();
-	}
+	private String buildIntegrationComment(
+		    String changeName,
+		    Map<String, Map<String, String>> itemVendorMap,
+		    Map<String, String> failedItemMap) {
+		    StringBuilder commentBuilder = new StringBuilder();
+		    commentBuilder.append("Hi,\n\n");
+		    commentBuilder.append("The integration from Agile PLM to Sage has been successfully completed for ")
+		                  .append(changeName).append(".\n");
+		    if (!failedItemMap.isEmpty()) {
+		        commentBuilder.append("\nHowever, the following item(s) could not be created in Sage due to the respective reason(s):\n\n");
+		        for (Map.Entry<String, String> entry : failedItemMap.entrySet()) {
+		            commentBuilder.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+		        }
+		        commentBuilder.append("\n");
+		    }
+		    
+		    boolean hasVendorIssues = itemVendorMap.values().stream()
+		        .flatMap(vendorMap -> vendorMap.values().stream())
+		        .anyMatch(issue -> issue != null && !issue.trim().isEmpty());
+		    if (hasVendorIssues) {
+		        commentBuilder.append("The cross reference(s) for the following vendors could not be created in Sage due to the respective reason(s):\n\n");
+		        for (Map.Entry<String, Map<String, String>> itemEntry : itemVendorMap.entrySet()) {
+		            String item = itemEntry.getKey();
+		            Map<String, String> vendorIssues = itemEntry.getValue();
+		            Map<String, String> filteredVendors = vendorIssues.entrySet().stream()
+		                .filter(entry -> entry.getValue() != null && !entry.getValue().trim().isEmpty())
+		                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		            if (!filteredVendors.isEmpty()) {
+		                commentBuilder.append("- ").append(item).append(":\n");
+		                for (Map.Entry<String, String> vendorEntry : filteredVendors.entrySet()) {
+		                    commentBuilder.append("     - ").append(vendorEntry.getKey()).append(": ")
+		                                  .append(vendorEntry.getValue()).append("\n");
+		                }
+		                commentBuilder.append("\n");
+		            }
+		        }
+		        commentBuilder.append("Please review and take the necessary action.\n");
+		    }
+		    return commentBuilder.toString();
+		}
 }
